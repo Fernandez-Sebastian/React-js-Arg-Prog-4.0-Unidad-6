@@ -1,9 +1,11 @@
 import React, {useState} from 'react';
 import { Formik, Form, Field } from 'formik';
-import { Input, Button, FormControl, FormErrorMessage, FormLabel, Flex, IconButton, InputRightElement, InputGroup } from '@chakra-ui/react';
+import { Input, Button, FormControl, FormErrorMessage, FormLabel, Flex, IconButton, InputRightElement, InputGroup, Toast } from '@chakra-ui/react';
 import * as Yup from 'yup';
 import { Card, CardBody } from '@chakra-ui/react'
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { motion } from "framer-motion";
+import { useToast } from '@chakra-ui/react'
 
 
 // Se define el esquema de validación con Yup
@@ -11,29 +13,38 @@ const validationSchema = Yup.object().shape({
   nombre: Yup.string().required('El campo Nombre es Obligatorio').min(3, 'El campo Nombre debe tener al menos 3 caracteres').max(9,'El campo Nombre debe tener como maximo 9 caracteres').matches(/^[a-zA-Z\s]+$/, 'El campo Nombre no debe contener caracteres especiales ni números'),
   apellido: Yup.string().required('El campo Apellido es Obligatorio').min(3, 'El campo Apellido debe tener al menos 3 caracteres').max(9,'El campo Apellido debe tener como maximo 9 caracteres').matches(/^[a-zA-Z\s]+$/, 'El campo Apellido no debe contener caracteres especiales ni números'),
   email: Yup.string().email('Ingrese un correo electrónico válido').required('El campo Email es Obligatorio'),
-  telefono: Yup.string().required('El campo Telefono es Obligatorio').min(8, 'El campo Telefono debe tener mas de 8 números').max(16,'El campo Telefono debe tener menos de 16 números ').matches(/^\+\d+$/, 'El campo Telefono debe comenzar con un + y luego contener solo números'),
-  password: Yup.string().min(5, 'La contraseña debe tener al menos 5 caracteres').required('El campo Contraseña es Obligatorio').oneOf([Yup.ref("confirmarPassword")], "La contraseña no coincide"),
-  confirmarPassword: Yup.string().min(5, 'La contraseña debe tener al menos 5 caracteres').required('Debe ingresar una contraseña').oneOf([Yup.ref("password")], "La contraseña no coincide"),
+  telefono: Yup.string().required('El campo Telefono es Obligatorio').min(8, 'El campo Telefono debe tener al menos 7 números').max(16,'El campo Telefono debe tener menos de 16 números ').matches(/^\+\d+$/, 'El campo Telefono debe comenzar con un + y luego contener solo números'),
+  password: Yup.string().min(5, 'La contraseña debe tener al menos 5 caracteres').required('El campo Contraseña es Obligatorio').oneOf([Yup.ref("confirmarPassword")], "La contraseña no coincide (deben ser iguales con el campo Confirmar Password)"),
+  confirmarPassword: Yup.string().min(5, 'La contraseña debe tener al menos 5 caracteres').required('Debe ingresar una contraseña').oneOf([Yup.ref("password")], "La contraseña no coincide (deben ser iguales con el campo Password)"),
 
 });
 
-// Función para manejar la lógica de envío del formulario
-const handleSubmit = (values, actions) => {
-
-    console.log('Formulario enviado:', values);
-    /* actions.setSubmitting(false); */
-    };
-    
-    
-    
     const Formulario = () => {
-        const [mostrar,setMostrar] = useState(false);
+
+        const toast = useToast()
+
+        const handleSubmit = (values) => {
+            const promesa = new Promise((resolve, reject) => {
+                setTimeout(() => resolve(200), 5000)
+            })
     
-        const verContraseña=() =>setMostrar(!mostrar);
+            toast.promise(promesa, {
+                loading: { title: 'Enviando Datos', description: 'Aguarde un instante' },
+                success: { title: 'Nuevo usuario', description: `blanqueo de clave a su casilla: ${values.email}` },
+            })
+        };
+    
+
+    // useState de los eventos para mostrar u ocultar la contraseña
+    const [mostrarPassword,setmostrarPassword] = useState(false);
+    const verContrasena=() =>setmostrarPassword(!mostrarPassword);
+
+    const [mostrarConfPassword,setmostrarConfPassword] = useState(false);
+    const verContrasenaPass=() =>setmostrarConfPassword(!mostrarConfPassword);
         
-  return (
-    <Flex justifyContent="center" w="100%" mt="100px">
-        <Card variant="outline" >
+    return (
+    <Flex justifyContent="center" w="100%"  minH="100vh" position="relative" alignItems="center">
+        <Card variant="outline" h="fit-content">
         <CardBody>
             <Formik
             // se establece los valores iniciales de los campos
@@ -51,6 +62,7 @@ const handleSubmit = (values, actions) => {
 
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
+
                 // no valida en ningun cambio
                 validateOnChange = {false}
                 // no valida al salir de focus del input
@@ -71,7 +83,7 @@ const handleSubmit = (values, actions) => {
                     {({ field, form }) => (
                         <FormControl isInvalid={form.errors.nombre && form.touched.nombre}>
                             <FormLabel>Nombre</FormLabel>
-                        <Input {...field} id="nombre"  />
+                        <Input {...field} id="nombre" />
                         <FormErrorMessage>{form.errors.nombre}</FormErrorMessage>
                         </FormControl>
                     )}
@@ -112,9 +124,9 @@ const handleSubmit = (values, actions) => {
                         <FormControl isInvalid={form.errors.password && form.touched.password}>
                             <FormLabel>Password</FormLabel>
                             <InputGroup>
-                                <Input {...field} type="password" id="password" />
+                                <Input  {...field} type={mostrarPassword ? "text" : "password"}id="password"/>
                                 <InputRightElement>
-                                    <IconButton icon={!mostrar ? <FaRegEye /> : <FaRegEyeSlash />} onClick={verContraseña} bg='transparent' _hover={{ bg:'transparent' }} tabIndex='-1'></IconButton>
+                                    <IconButton icon={!mostrarPassword ? <FaRegEye /> : <FaRegEyeSlash />} onClick={verContrasena} bg='transparent' _hover={{ bg:'transparent' }} tabIndex='-1'></IconButton>
                                 </InputRightElement>
                             </InputGroup>
                             <FormErrorMessage>{form.errors.password}</FormErrorMessage>
@@ -127,22 +139,25 @@ const handleSubmit = (values, actions) => {
                         <FormControl isInvalid={form.errors.confirmarPassword && form.touched.confirmarPassword}>
                             <FormLabel>Confirmar Password</FormLabel>
                             <InputGroup>
-                                <Input {...field} type="password" id="confirmarPassword" />
+                                <Input  {...field} type={mostrarConfPassword ? "text" : "password"}id="confirmarPassword"/>
                                 <InputRightElement>
-                                    <IconButton icon={!mostrar ? <FaRegEye /> : <FaRegEyeSlash />} onClick={verContraseña} bg='transparent' _hover={{ bg:'transparent' }} tabIndex='-1'></IconButton>
+                                    <IconButton icon={!mostrarConfPassword ? <FaRegEye /> : <FaRegEyeSlash />} onClick={verContrasenaPass} bg='transparent' _hover={{ bg:'transparent' }} tabIndex='-1'></IconButton>
                                 </InputRightElement>
                             </InputGroup>
                             <FormErrorMessage>{form.errors.confirmarPassword}</FormErrorMessage>
                         </FormControl>
                     )}
                     </Field>
-                    
-                    <Button mt={4} 
-                    colorScheme='teal'
-                    isLoading={false} type="submit">
-                    Enviar
-                    </Button>
-            </Form>
+                        <Flex justifyContent="space-evenly" alignItems="center">
+                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} w="fit-content" h="fit-content">
+                                <Button mt={4} 
+                                colorScheme='teal'
+                                isLoading={false} type="submit">
+                                Enviar
+                                </Button>
+                            </motion.div>
+                        </Flex>
+                </Form>
             )}
             </Formik>
         </CardBody>
@@ -151,5 +166,4 @@ const handleSubmit = (values, actions) => {
   );
 };
 
-// Exporta el componente del formulario
 export {Formulario};

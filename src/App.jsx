@@ -9,11 +9,9 @@ function App() {
   return (
     <>
     <ChakraProvider>
-      <Box>
         <Header/>
         <Formulario/>
         <Footer/>
-      </Box>
     </ChakraProvider>
     </>
   )
