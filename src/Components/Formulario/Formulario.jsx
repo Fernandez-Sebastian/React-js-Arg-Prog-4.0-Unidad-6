@@ -43,7 +43,7 @@ const validationSchema = Yup.object().shape({
     const verContrasenaPass=() =>setmostrarConfPassword(!mostrarConfPassword);
         
     return (
-    <Flex justifyContent="center" w="100%"  minH="100vh" position="relative" alignItems="center">
+    <Flex justifyContent="center" w="100%"  minH="100vh" mt="70px" position="relative" alignItems="center">
         <Card variant="outline" h="fit-content">
         <CardBody>
             <Formik
@@ -148,7 +148,7 @@ const validationSchema = Yup.object().shape({
                         </FormControl>
                     )}
                     </Field>
-                        <Flex justifyContent="space-evenly" alignItems="center">
+                        <Flex  /* justifyContent="space-evenly" */ alignItems="center" >
                             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} w="fit-content" h="fit-content">
                                 <Button mt={4} 
                                 colorScheme='teal'
