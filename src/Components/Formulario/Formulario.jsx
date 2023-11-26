@@ -12,8 +12,8 @@ import { useToast } from '@chakra-ui/react'
 const validationSchema = Yup.object().shape({
   nombre: Yup.string().required('El campo Nombre es Obligatorio').min(3, 'El campo Nombre debe tener al menos 3 caracteres').max(9,'El campo Nombre debe tener como maximo 9 caracteres').matches(/^[a-zA-Z\s]+$/, 'El campo Nombre no debe contener caracteres especiales ni números'),
   apellido: Yup.string().required('El campo Apellido es Obligatorio').min(3, 'El campo Apellido debe tener al menos 3 caracteres').max(9,'El campo Apellido debe tener como maximo 9 caracteres').matches(/^[a-zA-Z\s]+$/, 'El campo Apellido no debe contener caracteres especiales ni números'),
-  email: Yup.string().email('Ingrese un correo electrónico válido').required('El campo Email es Obligatorio'),
-  telefono: Yup.string().required('El campo Telefono es Obligatorio').min(8, 'El campo Telefono debe tener al menos 7 números').max(16,'El campo Telefono debe tener menos de 16 números ').matches(/^\+\d+$/, 'El campo Telefono debe comenzar con un + y luego contener solo números'),
+  email: Yup.string().email('No es un email valido').required('Ingrese un email').min(10, 'El minimo es de 10 caracteres').matches(/^[a-zA-Z0-9][a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/, 'No es un email valido'),
+  telefono: Yup.string().required('Ingrese un teléfono').matches(/^\d{10}$/,'Ingrese el número sin 0 y sin 15'),
   password: Yup.string().min(5, 'La contraseña debe tener al menos 5 caracteres').required('El campo Contraseña es Obligatorio').oneOf([Yup.ref("confirmarPassword")], "La contraseña no coincide (deben ser iguales con el campo Confirmar Password)"),
   confirmarPassword: Yup.string().min(5, 'La contraseña debe tener al menos 5 caracteres').required('Debe ingresar una contraseña').oneOf([Yup.ref("password")], "La contraseña no coincide (deben ser iguales con el campo Password)"),
 
@@ -30,7 +30,7 @@ const validationSchema = Yup.object().shape({
     
             toast.promise(promesa, {
                 loading: { title: 'Enviando Datos', description: 'Aguarde un instante' },
-                success: { title: 'Nuevo usuario', description: `blanqueo de clave a su casilla: ${values.email}` },
+                success: { title: 'Datos Enviados', description: `${values.apellido} ${values.nombre} Confirme la cuenta siguiendo los pasos enviados a: ${values.email}` },
             })
         };
     
@@ -53,7 +53,7 @@ const validationSchema = Yup.object().shape({
                     nombre: '', 
                     apellido: '',
                     email: '',
-                    telefno: '',
+                    telefono: '',
                     password: '',
                     confirmarPassword: ''
                 }}
@@ -103,7 +103,7 @@ const validationSchema = Yup.object().shape({
                     {({ field, form }) => (
                         <FormControl isInvalid={form.errors.email && form.touched.email}>
                         <FormLabel>Email</FormLabel>
-                        <Input {...field} id="email" placeholder='ejemplo@ejemplo.com' />
+                        <Input {...field} id="email" placeholder='ejemplo@ejemplo.com'/>
                         <FormErrorMessage>{form.errors.email}</FormErrorMessage>
                         </FormControl>
                     )}
@@ -113,7 +113,7 @@ const validationSchema = Yup.object().shape({
                     {({ field, form }) => (
                         <FormControl isInvalid={form.errors.telefono && form.touched.telefono}>
                         <FormLabel>Telefono</FormLabel>
-                        <Input {...field} id="telefono" placeholder='Ej: +54222213313' />
+                        <Input {...field} id="telefono" placeholder='Ej: 2914744456'/>
                         <FormErrorMessage>{form.errors.telefono}</FormErrorMessage>
                         </FormControl>
                     )}
